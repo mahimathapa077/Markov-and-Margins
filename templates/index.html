@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markov &amp Margins</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <header>
+    <h1>Markov &amp Margins</h1>
+    <p class="tagline">What should your customer read next? A Markov chain trained on our receipts.</p>
+  </header>
+
+  <main>
+    <!-- left side: the form -->
+    <section class="card" id="form-card">
+      <h2>Find a next read</h2>
+
+      <div class="field">
+        <label>Start from a:</label>
+        <label class="radio"><input type="radio" name="pick_type" value="book" checked> Book</label>
+        <label class="radio"><input type="radio" name="pick_type" value="genre"> Genre</label>
+      </div>
+
+      <div class="field" id="book-field">
+        <label for="book-select">Book they just bought</label>
+   <input type="text" id="book-search" placeholder="Type to search (e.g. Babel)" autocomplete="off">
+        <select id="book-select">
+          {% for book in books %}
+          <option value="{{ book.book_id }}">{{ book.title }} ({{ book.genre }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field" id="genre-field" style="display: none;">
+        <label for="genre-select">Genre they like</label>
+        <select id="genre-select">
+          {% for g in genres %}
+          <option value="{{ g }}">{{ g }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Method:</label>
+        <label class="radio"><input type="radio" name="method" value="rwr" checked> Wider Connections </label>
+        <label class="radio"><input type="radio" name="method" value="step"> Direct matches</label>
+      </div>
+
+      <button id="recommend-btn">Recommend</button>
+    </section>
+
+    <!-- right side: results + hubs -->
+    <section class="card" id="results-card">
+      <h2>Recommendations</h2>
+      <p id="status">Pick a book or genre and hit the button.</p>
+      <ol id="results-list"></ol>
+    </section>
+  </main>
+
+  <section class="card hubs">
+    <h2>Store hub books</h2>
+    <p class="small">These are the books that customers most often buy alongside other titles. They connect to the widest range of your catalogue, so they work well for front-of-store displays, and as a safe suggestion for someone who isn't sure what to read next.</p>
+    <ol>
+      {% for hub in hubs %}
+      <li>{{ hub.title }} <span class="genre-tag">{{ hub.genre }}</span> <span class="score">{{ hub.score }}</span></li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <footer>
+    <p>.Markov chain book recommender - an independent passion project.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
