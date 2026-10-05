@@ -3,7 +3,8 @@
 
 var bookField = document.getElementById("book-field");
 var genreField = document.getElementById("genre-field");
-var bookSelect = document.getElementById("book-select");
+var bookSearch = document.getElementById("book-search");
+var bookOptions = document.getElementById("book-options").options;
 var genreSelect = document.getElementById("genre-select");
 var recommendBtn = document.getElementById("recommend-btn");
 var statusText = document.getElementById("status");
@@ -20,7 +21,7 @@ function getRadioValue(name) {
   return null;
 }
 
-// show the book dropdown or the genre dropdown
+// show the book box or the genre dropdown
 function updateFields() {
   if (getRadioValue("pick_type") === "book") {
     bookField.style.display = "block";
@@ -34,6 +35,36 @@ function updateFields() {
 var typeRadios = document.getElementsByName("pick_type");
 for (var i = 0; i < typeRadios.length; i++) {
   typeRadios[i].addEventListener("change", updateFields);
+}
+
+// when you click the box, select the old text so typing replaces it
+bookSearch.addEventListener("focus", function () {
+  bookSearch.select();
+});
+
+// turn whatever is typed in the box into a book_id
+function findBookId() {
+  var typed = bookSearch.value.toLowerCase().trim();
+  if (typed === "") {
+    return null;
+  }
+
+  var matches = [];
+  for (var i = 0; i < bookOptions.length; i++) {
+    var title = bookOptions[i].value.toLowerCase();
+    if (title === typed) {
+      return bookOptions[i].getAttribute("data-id");  // exact match
+    }
+    if (title.indexOf(typed) !== -1) {
+      matches.push(bookOptions[i]);
+    }
+  }
+
+  // if only one book contains the typed text, use that one
+  if (matches.length === 1) {
+    return matches[0].getAttribute("data-id");
+  }
+  return null;
 }
 
 function showResults(data) {
@@ -58,22 +89,22 @@ function showResults(data) {
     tag.textContent = rec.genre;
     li.appendChild(tag);
 
-    var score = document.createElement("span");
-    score.className = "score";
-    score.textContent = "probability score: " + rec.score;
-    li.appendChild(score);
-
     resultsList.appendChild(li);
   }
 }
 
-recommendBtn.addEventListener("click", function () {
+function getRecommendations() {
   var pickType = getRadioValue("pick_type");
   var method = getRadioValue("method");
   var value;
 
   if (pickType === "book") {
-    value = bookSelect.value;
+    value = findBookId();
+    if (value === null) {
+      resultsList.innerHTML = "";
+      statusText.textContent = "Please pick a book from the list (start typing, then click a suggestion).";
+      return;
+    }
   } else {
     value = genreSelect.value;
   }
@@ -100,55 +131,13 @@ recommendBtn.addEventListener("click", function () {
       console.log(err);
       statusText.textContent = "Something went wrong, is the server running?";
     });
+}
+
+recommendBtn.addEventListener("click", getRecommendations);
+
+// pressing Enter in the book box = clicking Recommend
+bookSearch.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") {
+    getRecommendations();
+  }
 });
-
-
-    // ---- search box: type to filter the book list ----
-    var bookSearch = document.getElementById("book-search");
-
-    // remember the full list of books once, when the page loads
-    var allBooks = [];
-    for (var k = 0; k < bookSelect.options.length; k++) {
-      allBooks.push({ value: bookSelect.options[k].value, text: bookSelect.options[k].text });
-    }
-
-    function filterBooks() {
-      var typed = bookSearch.value.toLowerCase().trim();
-      bookSelect.innerHTML = "";
-      var count = 0;
-
-      for (var j = 0; j < allBooks.length; j++) {
-        if (allBooks[j].text.toLowerCase().indexOf(typed) !== -1) {
-          var opt = document.createElement("option");
-          opt.value = allBooks[j].value;
-          opt.textContent = allBooks[j].text;
-          bookSelect.appendChild(opt);
-          count++;
-        }
-      }
-
-      if (count === 0) {
-        var none = document.createElement("option");
-        none.value = "";
-        none.textContent = "No matching books";
-        bookSelect.appendChild(none);
-      }
-
-      // show a few rows while typing so the matches are visible
-      if (typed !== "" && count > 1) {
-        bookSelect.size = Math.min(count, 6);
-      } else {
-        bookSelect.size = 1;
-      }
-
-      bookSelect.selectedIndex = 0;  // pick the first match automatically
-    }
-
-    bookSearch.addEventListener("input", filterBooks);
-
-    // pressing Enter in the search box = clicking Recommend
-    bookSearch.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        recommendBtn.click();
-      }
-    });

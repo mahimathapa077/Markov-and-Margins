@@ -26,12 +26,12 @@
 
       <div class="field" id="book-field">
         <label for="book-select">Book they just bought</label>
-   <input type="text" id="book-search" placeholder="Type to search (e.g. Babel)" autocomplete="off">
-        <select id="book-select">
-          {% for book in books %}
-          <option value="{{ book.book_id }}">{{ book.title }} ({{ book.genre }})</option>
-          {% endfor %}
-        </select>
+     <input type="text" id="book-search" list="book-options" placeholder="Click here and start typing a title" autocomplete="off">
+   <datalist id="book-options">
+     {% for book in books %}
+     <option value="{{ book.title }}" data-id="{{ book.book_id }}">{{ book.genre }}</option>
+     {% endfor %}
+   </datalist>
       </div>
 
       <div class="field" id="genre-field" style="display: none;">
@@ -65,7 +65,7 @@
     <p class="small">These are the books that customers most often buy alongside other titles. They connect to the widest range of your catalogue, so they work well for front-of-store displays, and as a safe suggestion for someone who isn't sure what to read next.</p>
     <ol>
       {% for hub in hubs %}
-      <li>{{ hub.title }} <span class="genre-tag">{{ hub.genre }}</span> <span class="score">{{ hub.score }}</span></li>
+      <li>{{ hub.title }} <span class="genre-tag">{{ hub.genre }}</span></li>
       {% endfor %}
     </ol>
   </section>
