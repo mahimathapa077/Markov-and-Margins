@@ -1,4 +1,8 @@
-# Next Chapter - Markov Chain Book Recommender
+# Markov & Margins - Markov Chain Book Recommender
+
+**Live Demo**: https://markov-and-margins.onrender.com/
+
+
 
 A small web tool for independent bookstores. It reads old point-of-sale receipts and predicts which book a customer is likely to want next, using a Markov chain built from a matrix. No big datasets or machine learning libraries needed, which matters because a small shop doesn't have much data.
 
@@ -39,8 +43,8 @@ static/script.js
    Power iteration: start with pi equal for all books, and keep replacing it with `pi P` until it stops changing. The books with the largest values in pi are the "hubs", the ones that are most connected to the rest of the store's catalog. (This converges when the chain is connected and aperiodic, which holds for the mock data.)
 
 4. **Recommendations.** Two options in the app:
-   - *Single step:* take row i of P and show the 3 biggest entries (excluding the book itself).
-   - *Random walk with restart:* repeatedly compute `p = c * e + (1 - c) * p P`, where e is the start vector (the chosen book, or all books of a chosen genre with equal weight) and c = 0.15 is the restart probability. This also finds books that are two or three hops away, not just direct neighbours.
+   - *Direct Matches:* take row i of P and show the 3 biggest entries (excluding the book itself).
+   - *Wider connections:* repeatedly compute `p = c * e + (1 - c) * p P`, where e is the start vector (the chosen book, or all books of a chosen genre with equal weight) and c = 0.15 is the restart probability. This also finds books that are two or three hops away, not just direct neighbours.
 
 ## Limitations / ideas for later
 
